@@ -4,6 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 
 class Category(models.Model):
 
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
     name = models.CharField(max_length=255, verbose_name='Имя категории')
     slug = models.SlugField(unique=True)
 
@@ -12,6 +16,9 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+
+    class Meta:
+        abstract = True
 
     title = models.CharField(max_length=255, verbose_name='Наименование товара')
     slug = models.SlugField(unique=True)
@@ -24,14 +31,28 @@ class Product(models.Model):
         return self.title
 
 
-class Specifications(models.Model):
+class BallonsSetProduct(Product):
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    name = models.CharField(max_length=255, verbose_name='Имя товара для характеристик')
+    class Meta:
+        verbose_name = 'Набор из шаров'
+        verbose_name_plural = 'Наборы из шаров'
 
-    def __str__(self):
-        return f'Характеристики для товара {self.name}'
+    first_value = models.CharField(max_length=255, verbose_name='Первая характеристика')
+    second_value = models.CharField(max_length=255, verbose_name='Вторая характеристика')
+    third_value = models.PositiveIntegerField(verbose_name='Третья характеристика')
+
+
+class SomeOtherProduct(Product):
+
+    class Meta:
+        verbose_name = 'Другой продукт'
+        verbose_name_plural = 'Другие продукты'
+
+    first_value = models.CharField(max_length=255, verbose_name='Первая характеристика')
+    second_value = models.CharField(max_length=255, verbose_name='Вторая характеристика')
+    third_value = models.PositiveIntegerField(verbose_name='Третья характеристика')
+
+
 
 
 

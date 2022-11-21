@@ -1,12 +1,21 @@
 from django.db import models
-from ballons_shop.products.models import Product
+from products.models import Product
+from users.models import Customer
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 
-class CartProduct(model.Model):
+class CartProduct(models.Model):
 
-    user = models.ForeignKey('Customer', verbose_name='Покупатель', on_delete=models.CASCADE)
-    shopping_cart = models.ForeignKey('Cart', verbose_name='Корзина', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
+    class Meta:
+        verbose_name = 'Продукт в корзине'
+        verbose_name_plural = 'Продукты в корзине'
+
+    user = models.ForeignKey(Customer, verbose_name='Покупатель', on_delete=models.CASCADE)
+    shopping_cart = models.ForeignKey('ShoppingCart', verbose_name='Корзина', on_delete=models.CASCADE, related_name='related_products')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
     quantity = models.PositiveIntegerField(default=1)
     total_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Общая цена')
 
@@ -14,10 +23,14 @@ class CartProduct(model.Model):
         return f'Продукт {self.product.title} (для корзины)'
 
 
-class ShoppingCart(model.Models):
+class ShoppingCart(models.Model):
 
-    owner = models.ForeignKey('Customer', verbose_name='Владелец', on_delete=models.CASCADE)
-    products = models.ManyToManyField(CartProduct, blank=True)
+    class Meta:
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзины'
+
+    owner = models.ForeignKey(Customer, verbose_name='Владелец', on_delete=models.CASCADE)
+    products = models.ManyToManyField(CartProduct, blank=True, related_name='related_cart')
     total_products = models.PositiveIntegerField(default=0)
     total_cart_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Общая цена корзины')
 
